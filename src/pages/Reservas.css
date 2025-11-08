@@ -1,0 +1,237 @@
+.reservas-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.filtros {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filtros label {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.filtro-select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.filtro-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.status-select {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: white;
+  width: 100%;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.status-select:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.status-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.status-pendente {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.status-confirmada {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+.status-cancelada {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.status-concluida {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+}
+
+.observacoes-cell {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.profissional-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.especialidade-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Melhorias na tabela de reservas */
+.reservas-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.reservas-table thead {
+  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+  color: white;
+}
+
+.reservas-table thead th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.reservas-table thead th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.reservas-table thead th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.reservas-table tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.reservas-table tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reservas-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.reservas-table td {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+.reservas-table td:first-child {
+  font-weight: 600;
+  color: #3498db;
+}
+
+/* Coluna do cliente */
+.reservas-table td:nth-child(2) {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+/* Coluna de data */
+.reservas-table td:nth-child(3) {
+  color: #7f8c8d;
+  font-family: 'Courier New', monospace;
+}
+
+/* Coluna de hora */
+.reservas-table td:nth-child(4) {
+  color: #7f8c8d;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+/* Coluna de ações */
+.reservas-table td:last-child {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .filtros {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filtro-select {
+    width: 100%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .observacoes-cell {
+    max-width: 100px;
+  }
+
+  .reservas-table {
+    font-size: 0.875rem;
+  }
+
+  .reservas-table th,
+  .reservas-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .status-select {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.5rem;
+  }
+}
