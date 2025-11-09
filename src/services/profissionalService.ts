@@ -31,6 +31,14 @@ export const profissionalService = {
     const response = await api.get<Profissional[]>(`/profissionais/especialidade/${especialidade}`);
     return response.data;
   },
+  
+  // Buscar com filtros combinados
+  buscarComFiltros: async (especialidade?: string, filtro?: string): Promise<Profissional[]> => {
+    const response = await api.get<Profissional[]>('/profissionais/buscar', {
+      params: { especialidade, filtro }
+    });
+    return response.data;
+  },
 
   // Criar novo profissional
   criar: async (profissional: Omit<Profissional, 'id' | 'criadoEm' | 'atualizadoEm'>): Promise<Profissional> => {

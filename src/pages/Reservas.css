@@ -10,16 +10,24 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
+}
+
+.filtros .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .filtros label {
   color: #2c3e50;
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
+.filtro-input,
 .filtro-select {
   padding: 0.5rem 1rem;
   border: 1px solid #ddd;
@@ -28,6 +36,7 @@
   cursor: pointer;
 }
 
+.filtro-input:focus,
 .filtro-select:focus {
   outline: none;
   border-color: #3498db;
@@ -124,6 +133,38 @@
 }
 
 /* Melhorias na tabela de reservas */
+.reservas-por-dia {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.dia-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.dia-header {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hora-cell {
+  font-weight: 700;
+  color: #3498db;
+  font-size: 1.1rem;
+  font-family: 'Courier New', monospace;
+}
+
 .reservas-table {
   width: 100%;
   border-collapse: separate;
@@ -142,14 +183,6 @@
   text-transform: uppercase;
   font-size: 0.875rem;
   letter-spacing: 0.5px;
-}
-
-.reservas-table thead th:first-child {
-  border-top-left-radius: 8px;
-}
-
-.reservas-table thead th:last-child {
-  border-top-right-radius: 8px;
 }
 
 .reservas-table tbody tr {
@@ -172,28 +205,10 @@
   vertical-align: middle;
 }
 
-.reservas-table td:first-child {
-  font-weight: 600;
-  color: #3498db;
-}
-
 /* Coluna do cliente */
 .reservas-table td:nth-child(2) {
   font-weight: 500;
   color: #2c3e50;
-}
-
-/* Coluna de data */
-.reservas-table td:nth-child(3) {
-  color: #7f8c8d;
-  font-family: 'Courier New', monospace;
-}
-
-/* Coluna de hora */
-.reservas-table td:nth-child(4) {
-  color: #7f8c8d;
-  font-family: 'Courier New', monospace;
-  font-weight: 600;
 }
 
 /* Coluna de ações */

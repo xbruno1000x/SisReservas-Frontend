@@ -10,6 +10,9 @@ const Profissionais = () => {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingProfissional, setEditingProfissional] = useState<Profissional | null>(null);
+  const [filtroAtivo, setFiltroAtivo] = useState<string>('TODOS');
+  const [filtroEspecialidade, setFiltroEspecialidade] = useState<string>('');
+  const [filtroBusca, setFiltroBusca] = useState<string>('');
   const [formData, setFormData] = useState({
     nome: '',
     especialidade: '',
@@ -17,7 +20,6 @@ const Profissionais = () => {
     email: '',
     ativo: true,
   });
-  const [filtroAtivo, setFiltroAtivo] = useState<string>('TODOS');
 
   useEffect(() => {
     carregarProfissionais();
@@ -36,6 +38,36 @@ const Profissionais = () => {
       setLoading(false);
     }
   };
+  
+  const buscarComFiltros = async () => {
+    try {
+      setLoading(true);
+      const especialidade = filtroEspecialidade.trim() || undefined;
+      const filtro = filtroBusca.trim() || undefined;
+      
+      if (!especialidade && !filtro) {
+        await carregarProfissionais();
+        return;
+      }
+      
+      const data = await profissionalService.buscarComFiltros(especialidade, filtro);
+      setProfissionais(data);
+      setError(null);
+    } catch (err) {
+      setError('Erro ao buscar profissionais');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      buscarComFiltros();
+    }, 500); // Debounce de 500ms
+    
+    return () => clearTimeout(timer);
+  }, [filtroEspecialidade, filtroBusca]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,17 +144,41 @@ const Profissionais = () => {
       {error && <div className="error-message">{error}</div>}
 
       <div className="filtros">
-        <label htmlFor="filtro-ativo">Filtrar:</label>
-        <select 
-          id="filtro-ativo"
-          value={filtroAtivo} 
-          onChange={(e) => setFiltroAtivo(e.target.value)}
-          className="filtro-select"
-        >
-          <option value="TODOS">Todos</option>
-          <option value="ATIVOS">Ativos</option>
-          <option value="INATIVOS">Inativos</option>
-        </select>
+        <div className="form-group">
+          <label htmlFor="filtro-especialidade">Especialidade:</label>
+          <input
+            type="text"
+            id="filtro-especialidade"
+            value={filtroEspecialidade}
+            onChange={(e) => setFiltroEspecialidade(e.target.value)}
+            placeholder="Filtrar por especialidade..."
+            className="filtro-input"
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="filtro-busca">Buscar:</label>
+          <input
+            type="text"
+            id="filtro-busca"
+            value={filtroBusca}
+            onChange={(e) => setFiltroBusca(e.target.value)}
+            placeholder="Digite nome, email ou telefone..."
+            className="filtro-input"
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="filtro-ativo">Status:</label>
+          <select 
+            id="filtro-ativo"
+            value={filtroAtivo} 
+            onChange={(e) => setFiltroAtivo(e.target.value)}
+            className="filtro-select"
+          >
+            <option value="TODOS">Todos</option>
+            <option value="ATIVOS">Ativos</option>
+            <option value="INATIVOS">Inativos</option>
+          </select>
+        </div>
       </div>
 
       {showForm && (

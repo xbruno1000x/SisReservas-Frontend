@@ -10,6 +10,7 @@ const Clientes = () => {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
+  const [filtro, setFiltro] = useState<string>('');
   const [formData, setFormData] = useState({
     nome: '',
     telefone: '',
@@ -33,6 +34,33 @@ const Clientes = () => {
       setLoading(false);
     }
   };
+  
+  const buscarComFiltro = async () => {
+    if (!filtro.trim()) {
+      await carregarClientes();
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const data = await clienteService.buscarPorFiltro(filtro);
+      setClientes(data);
+      setError(null);
+    } catch (err) {
+      setError('Erro ao buscar clientes');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      buscarComFiltro();
+    }, 500); // Debounce de 500ms
+    
+    return () => clearTimeout(timer);
+  }, [filtro]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +120,20 @@ const Clientes = () => {
       </div>
 
       {error && <div className="error-message">{error}</div>}
+
+      <div className="filtros">
+        <div className="form-group">
+          <label htmlFor="filtro-busca">Buscar:</label>
+          <input
+            type="text"
+            id="filtro-busca"
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+            placeholder="Digite nome, email ou telefone..."
+            className="filtro-input"
+          />
+        </div>
+      </div>
 
       {showForm && (
         <div className="form-container">

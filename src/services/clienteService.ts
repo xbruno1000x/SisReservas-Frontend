@@ -7,6 +7,14 @@ export const clienteService = {
     const response = await api.get<Cliente[]>('/clientes');
     return response.data;
   },
+  
+  // Buscar clientes por filtro (nome, email ou telefone)
+  buscarPorFiltro: async (filtro: string): Promise<Cliente[]> => {
+    const response = await api.get<Cliente[]>('/clientes/buscar', {
+      params: { filtro }
+    });
+    return response.data;
+  },
 
   // Buscar cliente por ID
   buscarPorId: async (id: number): Promise<Cliente> => {

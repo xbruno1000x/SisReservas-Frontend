@@ -15,6 +15,10 @@ const Reservas = () => {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingReserva, setEditingReserva] = useState<Reserva | null>(null);
+  const [filtroStatus, setFiltroStatus] = useState<string>('TODAS');
+  const [filtroData, setFiltroData] = useState<string>('');
+  const [filtroClienteId, setFiltroClienteId] = useState<string>('');
+  const [filtroProfissionalId, setFiltroProfissionalId] = useState<string>('');
   const [formData, setFormData] = useState<ReservaForm>({
     clienteId: 0,
     profissionalId: 0,
@@ -22,7 +26,6 @@ const Reservas = () => {
     hora: '',
     observacoes: '',
   });
-  const [filtroStatus, setFiltroStatus] = useState<string>('TODAS');
 
   useEffect(() => {
     carregarDados();
@@ -47,6 +50,37 @@ const Reservas = () => {
       setLoading(false);
     }
   };
+  
+  const buscarComFiltros = async () => {
+    try {
+      setLoading(true);
+      const data = filtroData || undefined;
+      const clienteId = filtroClienteId ? Number(filtroClienteId) : undefined;
+      const profissionalId = filtroProfissionalId ? Number(filtroProfissionalId) : undefined;
+      
+      if (!data && !clienteId && !profissionalId) {
+        const reservasData = await reservaService.listarTodas();
+        setReservas(reservasData);
+      } else {
+        const reservasData = await reservaService.buscarComFiltros(data, clienteId, profissionalId);
+        setReservas(reservasData);
+      }
+      setError(null);
+    } catch (err) {
+      setError('Erro ao buscar reservas');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      buscarComFiltros();
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [filtroData, filtroClienteId, filtroProfissionalId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +108,6 @@ const Reservas = () => {
       observacoes: reserva.observacoes || '',
     });
     setShowForm(true);
-    // Scroll suave até o topo da página
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -109,6 +142,19 @@ const Reservas = () => {
   const reservasFiltradas = filtroStatus === 'TODAS' 
     ? reservas 
     : reservas.filter(r => r.status === filtroStatus);
+  
+  const reservasPorDia = reservasFiltradas.reduce((acc, reserva) => {
+    const data = reserva.data;
+    if (!acc[data]) {
+      acc[data] = [];
+    }
+    acc[data].push(reserva);
+    return acc;
+  }, {} as Record<string, Reserva[]>);
+  
+  const datasOrdenadas = Object.keys(reservasPorDia).sort((a, b) => {
+    return new Date(a).getTime() - new Date(b).getTime();
+  });
 
   const getStatusClass = (status: StatusReserva) => {
     switch (status) {
@@ -139,19 +185,63 @@ const Reservas = () => {
       {error && <div className="error-message">{error}</div>}
 
       <div className="filtros">
-        <label htmlFor="filtro-status">Filtrar por Status:</label>
-        <select 
-          id="filtro-status"
-          value={filtroStatus} 
-          onChange={(e) => setFiltroStatus(e.target.value)}
-          className="filtro-select"
-        >
-          <option value="TODAS">Todas</option>
-          <option value="PENDENTE">Pendente</option>
-          <option value="CONFIRMADA">Confirmada</option>
-          <option value="CANCELADA">Cancelada</option>
-          <option value="CONCLUIDA">Concluída</option>
-        </select>
+        <div className="form-group">
+          <label htmlFor="filtro-data">Data:</label>
+          <input
+            type="date"
+            id="filtro-data"
+            value={filtroData}
+            onChange={(e) => setFiltroData(e.target.value)}
+            className="filtro-input"
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="filtro-cliente">Cliente:</label>
+          <select
+            id="filtro-cliente"
+            value={filtroClienteId}
+            onChange={(e) => setFiltroClienteId(e.target.value)}
+            className="filtro-select"
+          >
+            <option value="">Todos os clientes</option>
+            {clientes.map((cliente) => (
+              <option key={cliente.id} value={cliente.id}>
+                {cliente.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="filtro-profissional">Profissional:</label>
+          <select
+            id="filtro-profissional"
+            value={filtroProfissionalId}
+            onChange={(e) => setFiltroProfissionalId(e.target.value)}
+            className="filtro-select"
+          >
+            <option value="">Todos os profissionais</option>
+            {profissionais.map((profissional) => (
+              <option key={profissional.id} value={profissional.id}>
+                {profissional.nome} - {profissional.especialidade}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="filtro-status">Status:</label>
+          <select 
+            id="filtro-status"
+            value={filtroStatus} 
+            onChange={(e) => setFiltroStatus(e.target.value)}
+            className="filtro-select"
+          >
+            <option value="TODAS">Todas</option>
+            <option value="PENDENTE">Pendente</option>
+            <option value="CONFIRMADA">Confirmada</option>
+            <option value="CANCELADA">Cancelada</option>
+            <option value="CONCLUIDA">Concluída</option>
+          </select>
+        </div>
       </div>
 
       {showForm && (
@@ -234,66 +324,69 @@ const Reservas = () => {
         </div>
       )}
 
-      <div className="table-container">
-        <table className="reservas-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Profissional</th>
-              <th>Data</th>
-              <th>Hora</th>
-              <th>Status</th>
-              <th>Observações</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reservasFiltradas.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="empty-message">
-                  Nenhuma reserva encontrada
-                </td>
-              </tr>
-            ) : (
-              reservasFiltradas.map((reserva) => (
-                <tr key={reserva.id}>
-                  <td>{reserva.id}</td>
-                  <td>{reserva.cliente.nome}</td>
-                  <td>
-                    <span className="profissional-info">
-                      {reserva.profissional.nome}
-                      <span className="especialidade-badge">{reserva.profissional.especialidade}</span>
-                    </span>
-                  </td>
-                  <td>{formatarData(reserva.data)}</td>
-                  <td>{reserva.hora}</td>
-                  <td>
-                    <select
-                      value={reserva.status}
-                      onChange={(e) => handleStatusChange(reserva.id!, e.target.value as StatusReserva)}
-                      className={`status-select ${getStatusClass(reserva.status)}`}
-                    >
-                      <option value="PENDENTE">Pendente</option>
-                      <option value="CONFIRMADA">Confirmada</option>
-                      <option value="CANCELADA">Cancelada</option>
-                      <option value="CONCLUIDA">Concluída</option>
-                    </select>
-                  </td>
-                  <td className="observacoes-cell">{reserva.observacoes || '-'}</td>
-                  <td>
-                    <button className="btn btn-sm btn-edit" onClick={() => handleEdit(reserva)}>
-                      Editar
-                    </button>
-                    <button className="btn btn-sm btn-delete" onClick={() => handleDelete(reserva.id!)}>
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="reservas-por-dia">
+        {datasOrdenadas.length === 0 ? (
+          <div className="empty-message">Nenhuma reserva encontrada</div>
+        ) : (
+          datasOrdenadas.map((data) => (
+            <div key={data} className="dia-container">
+              <h3 className="dia-header">
+                {formatarData(data)} - {reservasPorDia[data].length} reserva(s)
+              </h3>
+              <div className="table-container">
+                <table className="reservas-table">
+                  <thead>
+                    <tr>
+                      <th>Hora</th>
+                      <th>Cliente</th>
+                      <th>Profissional</th>
+                      <th>Status</th>
+                      <th>Observações</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reservasPorDia[data]
+                      .sort((a, b) => a.hora.localeCompare(b.hora))
+                      .map((reserva) => (
+                        <tr key={reserva.id}>
+                          <td className="hora-cell">{reserva.hora}</td>
+                          <td>{reserva.cliente.nome}</td>
+                          <td>
+                            <span className="profissional-info">
+                              {reserva.profissional.nome}
+                              <span className="especialidade-badge">{reserva.profissional.especialidade}</span>
+                            </span>
+                          </td>
+                          <td>
+                            <select
+                              value={reserva.status}
+                              onChange={(e) => handleStatusChange(reserva.id!, e.target.value as StatusReserva)}
+                              className={`status-select ${getStatusClass(reserva.status)}`}
+                            >
+                              <option value="PENDENTE">Pendente</option>
+                              <option value="CONFIRMADA">Confirmada</option>
+                              <option value="CANCELADA">Cancelada</option>
+                              <option value="CONCLUIDA">Concluída</option>
+                            </select>
+                          </td>
+                          <td className="observacoes-cell">{reserva.observacoes || '-'}</td>
+                          <td>
+                            <button className="btn btn-sm btn-edit" onClick={() => handleEdit(reserva)}>
+                              Editar
+                            </button>
+                            <button className="btn btn-sm btn-delete" onClick={() => handleDelete(reserva.id!)}>
+                              Excluir
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

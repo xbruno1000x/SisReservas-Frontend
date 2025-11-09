@@ -46,6 +46,14 @@ export const reservaService = {
     });
     return response.data;
   },
+  
+  // Buscar com filtros combinados
+  buscarComFiltros: async (data?: string, clienteId?: number, profissionalId?: number): Promise<Reserva[]> => {
+    const response = await api.get<Reserva[]>('/reservas/buscar', {
+      params: { data, clienteId, profissionalId }
+    });
+    return response.data;
+  },
 
   // Criar nova reserva
   criar: async (reservaForm: ReservaForm): Promise<Reserva> => {
